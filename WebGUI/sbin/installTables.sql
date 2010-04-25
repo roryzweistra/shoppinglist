@@ -1,4 +1,4 @@
-create table 'shoppingProduct' (
+create table shoppingProduct (
 	'id' char(22) binary not null,
 	'title' varchar(255) not null,
     'categoryId' char(22) not null,
