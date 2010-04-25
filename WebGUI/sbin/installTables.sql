@@ -6,7 +6,7 @@ CREATE TABLE `shoppingProduct` (
     `ownerId` char(22) not null,
     `dateAdded` bigint(20) not null,
 	primary key (`id`),
-    key shoppingProduct (`title`)
+    key `shoppingProduct` (`title`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `shoppingCategory` (
@@ -15,7 +15,7 @@ CREATE TABLE `shoppingCategory` (
     `ownerId` char(22) not null,
     `dateAdded` bigint(20),
     primary key (`id`),
-    key shoppingCategoryTitle (`title`)
+    key `shoppingCategoryTitle` (`title`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `shoppingStore` (
@@ -24,7 +24,7 @@ CREATE TABLE `shoppingStore` (
     `ownerId` char(22) not null,
     `dateAdded` bigint(20),
     primary key (`id`),
-    key shoppingStoreTitle (`title`)
+    key `shoppingStoreTitle` (`title`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `shoppingStoreArea` (
@@ -35,7 +35,7 @@ CREATE TABLE `shoppingStoreArea` (
     `dateAdded` bigint(20) not null,
     `rank` int(3),
     primary key (`id`),
-    key shoppingStoreAreaTitle (`title`)
+    key `shoppingStoreAreaTitle` (`title`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `shoppingList` (
@@ -47,7 +47,7 @@ CREATE TABLE `shoppingList` (
     `completed` smallint(1) default 0,
     `templateId` char(22),
     primary key (`id`),
-    key shoppingListTitle (`title`)
+    key `shoppingListTitle` (`title`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `shoppingListProduct` (
