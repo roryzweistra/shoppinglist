@@ -1,4 +1,4 @@
-create table shoppingProduct (
+create table `shoppingProduct` (
 	`id` char(22) binary not null,
 	`title` varchar(255) not null,
     `categoryId` char(22) not null,
@@ -9,7 +9,7 @@ create table shoppingProduct (
     key shoppingProduct (title)
 )
 
-create table shoppingCategory (
+create table `shoppingCategory` (
     `id` char(22) binary not null,
     `title` varchar(255) not null,
     `ownerId` char(22) not null,
@@ -18,7 +18,7 @@ create table shoppingCategory (
     key shoppingCategoryTitle (title)
 )
 
-create table shoppingStore (
+create table `shoppingStore` (
     `id` char(22) binary not null,
     `title` varchar(255) not null,
     `ownerId` char(22) not null,
@@ -27,7 +27,7 @@ create table shoppingStore (
     key shoppingStoreTitle (title)
 )
 
-create table shoppingStoreArea (
+create table `shoppingStoreArea` (
     `id` char(22) binary not null,
     `title` varchar(255) not null,
     `ownerId` char(22) not null,
@@ -38,7 +38,7 @@ create table shoppingStoreArea (
     key shoppingStoreAreaTitle (title)
 )
 
-create table shoppingList (
+create table `shoppingList` (
     `id` char(22) binary not null,
     `title` varchar(255) not null,
     `dateAdded` bigint(20) not null,
@@ -50,7 +50,7 @@ create table shoppingList (
     key shoppingListTitle (title)
 )
 
-create table shoppingListProduct (
+create table `shoppingListProduct` (
     `id` char(22) binary not null,
     `ownerId` char(22) not null,
     `dateAdded` bigint(20) not null,
