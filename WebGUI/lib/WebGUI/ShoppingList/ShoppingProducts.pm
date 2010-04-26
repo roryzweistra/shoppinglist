@@ -10,7 +10,7 @@ $VERSION = "1.0.0";
 
 use strict;
 use Data::Dumper;
-use WebGUI::Shopping::Core;
+use WebGUI::ShoppingList::ShoppingCore;
 
 #-------------------------------------------------------------------
 
