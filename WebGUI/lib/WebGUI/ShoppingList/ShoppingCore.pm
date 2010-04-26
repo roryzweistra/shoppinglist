@@ -13,6 +13,13 @@ use Data::Dumper;
 
 #-------------------------------------------------------------------
 
+=head2 getDefaultData ( )
+
+Creates ShoppingList data that standardly should be saved to the database. This data set should be saved for any
+kind of ShoppingList object.
+
+=cut
+
 sub getDefaultData {
     my $self	= shift;
     my $data	= {
