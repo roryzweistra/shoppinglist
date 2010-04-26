@@ -44,7 +44,8 @@ CREATE TABLE `shoppingList` (
     `dateAdded` bigint(20) not null,
     `dateDue` bigint(20) null,
     `defaultSort` varchar(255) null,
-    `completed` smallint(1) default 0,
+    `completed` int(1) default 0,
+    `ownerId` char(22) not null,
     `templateId` char(22),
     primary key (`id`),
     key `shoppingListTitle` (`title`)
