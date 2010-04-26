@@ -59,5 +59,5 @@ CREATE TABLE `shoppingListProduct` (
     `shoppingProductId` char(22) not null,
     `shoppingStoreId` char(22) null,
     `quantity` int(3) not null default 1,
-    primary key (`id`),
+    primary key (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
