@@ -1,4 +1,4 @@
-package WebGUI::ShoppingList::ShoppingProducts;
+package WebGUI::ShoppingList::ShoppingCategory;
 
 $VERSION = "1.0.0";
 
@@ -9,7 +9,6 @@ $VERSION = "1.0.0";
 #-------------------------------------------------------------------
 
 use strict;
-use base 'WebGUI::Crud';
 use Data::Dumper;
 use WebGUI::ShoppingList::ShoppingCore;
 
@@ -21,7 +20,7 @@ Method to save a new product or update a existing one based on ownerId to the da
 
 =cut
 
-sub saveProduct {
+sub saveCategory {
 	my $self		= shift;
 	my $core		= WebGUI::ShoppingList::ShoppingCore->new( $self->session );
 	my $var			= $core->getDefaultSaveData;

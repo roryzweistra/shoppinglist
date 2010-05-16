@@ -5,7 +5,7 @@ $VERSION = "1.0.0";
 #-------------------------------------------------------------------
 # Rory Zweistra 2010
 #-------------------------------------------------------------------
-# http://www.oqapi.nl                                  rory@oqapi.nl
+# http://www.ryuu.nl                                    rory@ryuu.nl
 #-------------------------------------------------------------------
 
 use strict;
@@ -20,13 +20,34 @@ kind of ShoppingList object.
 
 =cut
 
-sub getDefaultData {
+sub getDefaultSaveData {
     my $self	= shift;
     my $data	= {
 		'id'		=> $self->session->generateId,
 		'ownerId'	=> $self->session->user->userId,
 		'dateAdded'	=> time,
 	};
+
+    return $data;
+}
+
+#-------------------------------------------------------------------
+
+=head2 skipStandardFormVars ( )
+
+This method makes sure the standard WebGUI form vars ( csfr token, submit, func ) don't get included in the
+data set that should be saved to the database.
+
+=cut
+
+sub skipStandardFormVars {
+    my $self		= shift;
+	my $data		= shift;
+	my @varsToSkip	= ( 'func', 'submit', 'webguiCsrfToken' );
+
+	foreach my $var ( @varsToSkip ) {
+		delete $data->{ $var };
+	}
 
     return $data;
 }
