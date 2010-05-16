@@ -52,4 +52,16 @@ sub skipStandardFormVars {
     return $data;
 }
 
+#-------------------------------------------------------------------
+
+sub updateDb {
+	my $self		= shift;
+	my $table		= shift || undef;
+	my $primaryKey	= shift || undef;
+	my $data		= shift || undef;
+	my $update		= $self->session->db->setRow( $table, $primaryKey, $data );
+
+	return $update;
+}
+
 1;
