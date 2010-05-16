@@ -1,6 +1,7 @@
 CREATE TABLE `ShoppingProducts` (
 	`id` char(22) binary not null,
 	`title` varchar(255) not null,
+    `description` text null;
     `categoryId` char(22) not null,
     `barcode` int(13) null,
     `ownerId` char(22) not null,
@@ -8,6 +9,17 @@ CREATE TABLE `ShoppingProducts` (
 	primary key (`id`),
     key `shoppingProduct` (`title`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE `ShoppingProductsPersonal` (
+    `id` char(22) binary not null,
+    `userId` char(22) not null,
+    `originalId` char(22) binary not null,
+    `title` varchar(255) null,
+    `categoryId` char(22) null,
+    `originalCategoryId` char(22) not null,
+    primary key (`id`),
+    key `shoppingProductPersonal` (`title`)
+) ENGINE-MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `ShoppingCategory` (
     `id` char(22) binary not null,
@@ -18,8 +30,29 @@ CREATE TABLE `ShoppingCategory` (
     key `shoppingCategoryTitle` (`title`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+CREATE TABLE `ShoppingCategoryPersonal` (
+    `id` char(22) binary not null,
+    `originalId` char(22) binary not null,
+    `title` varchar(255) not null,
+    `ownerId` char(22) not null,
+    `dateAdded` bigint(20),
+    primary key (`id`),
+    key `shoppingCategoryTitlePersonal` (`title`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE `ShoppingStore` (
     `id` char(22) binary not null,
+    `title` varchar(255) not null,
+    `ownerId` char(22) not null,
+    `dateAdded` bigint(20),
+    primary key (`id`),
+    key `shoppingStoreTitle` (`title`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE `ShoppingStorePersonal` (
+    `id` char(22) binary not null,
+    `userId` char(22) not null,
+    `originalId` char(22) binary not null,
     `title` varchar(255) not null,
     `ownerId` char(22) not null,
     `dateAdded` bigint(20),
