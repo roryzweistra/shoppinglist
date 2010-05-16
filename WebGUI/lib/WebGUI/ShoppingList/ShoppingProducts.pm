@@ -9,9 +9,11 @@ $VERSION = "1.0.0";
 #-------------------------------------------------------------------
 
 use strict;
-use base 'WebGUI::Crud';
 use Data::Dumper;
 use WebGUI::ShoppingList::ShoppingCore;
+
+my $table		= 'ShoppingProducts';
+my $primaryKey	= 'id';
 
 #-------------------------------------------------------------------
 
@@ -33,7 +35,7 @@ sub saveProduct {
 		$var->{ $param } = $newParams->{ $param };
 	}
 
-	my $updateId	= $self->updateDb( $var );
+	my $updateId	= $core->updateDb( $table, $primaryKey, $var );
 
 	return $updateId;
 }
@@ -55,16 +57,6 @@ sub new {
 sub session {
     my $self = shift;
     return $self->{_session};
-}
-
-#-------------------------------------------------------------------
-
-sub updateDb {
-	my $self	= shift;
-	my $data	= shift || undef;
-	my $update	= $self->session->db->setRow( 'ShoppingProducts', 'id', $data );
-
-	return $update;
 }
 
 1;
