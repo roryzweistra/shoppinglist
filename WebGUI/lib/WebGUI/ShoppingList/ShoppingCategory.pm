@@ -12,11 +12,14 @@ use strict;
 use Data::Dumper;
 use WebGUI::ShoppingList::ShoppingCore;
 
+my $table		= 'ShoppingCategory';
+my $primaryKey	= 'id';
+
 #-------------------------------------------------------------------
 
-=head2 addNewProduct ( )
+=head2 saveCategory ( )
 
-Method to save a new product or update a existing one based on ownerId to the database.
+Method to save a new category or update a existing one based on ownerId to the database.
 
 =cut
 
