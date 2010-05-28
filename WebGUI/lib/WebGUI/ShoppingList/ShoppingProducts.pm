@@ -31,11 +31,7 @@ sub saveProduct {
 	my $skippedSet	= $core->skipStandardFormVars( $fullSet );
 	my $params		= ( $var, $skippedSet );
 
-	foreach my $param ( keys %{ $params } ) {
-		$var->{ $param } = $newParams->{ $param };
-	}
-
-	my $updateId	= $core->updateDb( $table, $primaryKey, $var );
+	my $updateId	= $core->updateDb( $table, $primaryKey, $params );
 
 	return $updateId;
 }
