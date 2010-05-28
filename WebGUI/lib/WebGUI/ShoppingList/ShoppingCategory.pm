@@ -26,11 +26,11 @@ Method to save a new category or update a existing one based on ownerId to the d
 sub saveCategory {
 	my $self		= shift;
 	my $core		= WebGUI::ShoppingList::ShoppingCore->new( $self->session );
-	my $defaultVar	= $core->getDefaultSaveData;
 	my $fullSet		= $self->session->form->paramsHashRef;
+	my $defaultVar	= $core->getDefaultSaveData;
 	my $skippedSet	= $core->skipStandardFormVars( $fullSet );
 	my $params		= delete %${ ( $defaultVar, $skippedSet ) };
-	my $updateId	= $core->updateDb( $table, $primaryKey, $var );
+	my $updateId	= $core->updateDb( $table, $primaryKey, $params );
 
 	return $updateId;
 }
