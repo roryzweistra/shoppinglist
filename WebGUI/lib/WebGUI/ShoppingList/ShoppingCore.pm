@@ -45,9 +45,7 @@ sub skipStandardFormVars {
 	my $data		= shift;
 	my @varsToSkip	= ( 'func', 'submit', 'webguiCsrfToken' );
 
-	foreach my $var ( @varsToSkip ) {
-		delete $data->{ $var };
-	}
+	$data = delete $data->{ @varsToSkip };
 
     return $data;
 }
