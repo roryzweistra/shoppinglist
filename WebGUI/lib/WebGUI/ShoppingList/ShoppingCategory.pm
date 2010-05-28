@@ -29,7 +29,7 @@ sub saveCategory {
 	my $fullSet		= $self->session->form->paramsHashRef;
 	my $defaultVar	= $core->getDefaultSaveData;
 	my $skippedSet	= $core->skipStandardFormVars( $fullSet );
-	my $params		= delete %${ ( $defaultVar, $skippedSet ) };
+	my $params		= ( $defaultVar, $skippedSet );
 	my $updateId	= $core->updateDb( $table, $primaryKey, $params );
 
 	return $updateId;
