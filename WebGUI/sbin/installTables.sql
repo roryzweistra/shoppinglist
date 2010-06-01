@@ -1,7 +1,7 @@
 CREATE TABLE `ShoppingProducts` (
 	`id` char(22) binary not null,
 	`title` varchar(255) not null,
-    `description` text null;
+    `description` text null,
     `categoryId` char(22) not null,
     `barcode` int(13) null,
     `ownerId` char(22) not null,
@@ -15,7 +15,7 @@ CREATE TABLE `ShoppingProductsPersonal` (
     `userId` char(22) not null,
     `originalId` char(22) binary not null,
     `title` varchar(255) null,
-    `description` text null;
+    `description` text null,
     `categoryId` char(22) null,
     `originalCategoryId` char(22) not null,
     primary key (`id`),
@@ -25,7 +25,7 @@ CREATE TABLE `ShoppingProductsPersonal` (
 CREATE TABLE `ShoppingCategory` (
     `id` char(22) binary not null,
     `title` varchar(255) not null,
-    `description` text null;
+    `description` text null,
     `ownerId` char(22) not null,
     `dateAdded` bigint(20),
     primary key (`id`),
@@ -36,7 +36,7 @@ CREATE TABLE `ShoppingCategoryPersonal` (
     `id` char(22) binary not null,
     `originalId` char(22) binary not null,
     `title` varchar(255) not null,
-    `description` text null;
+    `description` text null,
     `ownerId` char(22) not null,
     `dateAdded` bigint(20),
     primary key (`id`),
@@ -46,7 +46,7 @@ CREATE TABLE `ShoppingCategoryPersonal` (
 CREATE TABLE `ShoppingStore` (
     `id` char(22) binary not null,
     `title` varchar(255) not null,
-    `description` text null;
+    `description` text null,
     `ownerId` char(22) not null,
     `dateAdded` bigint(20),
     primary key (`id`),
@@ -57,7 +57,7 @@ CREATE TABLE `ShoppingStorePersonal` (
     `id` char(22) binary not null,
     `originalId` char(22) binary not null,
     `title` varchar(255) not null,
-    `description` text null;
+    `description` text null,
     `ownerId` char(22) not null,
     `dateAdded` bigint(20),
     primary key (`id`),
