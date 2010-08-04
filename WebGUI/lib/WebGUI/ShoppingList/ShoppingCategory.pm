@@ -20,7 +20,7 @@ my $primaryKey	= 'id';
 =head2 getAllCategories ( )
 
 Method to retrieve personal & all other categories from the database. If personal categories are defined only the
-personal ones are returned.
+personal ones are returned. Returns a hashref.
 
 =cut
 
@@ -49,7 +49,7 @@ sub getAllCategories {
 
 =head2 getCategories ( )
 
-Method to retrieve categories from the database.
+Method to retrieve categories from the database. Returns a hashref
 
 =cut
 
@@ -71,7 +71,7 @@ sub getCategories {
 
 =head2 getPersonalCategories ( )
 
-Method to retrieve per user personal categories from the database.
+Method to retrieve per user personal categories from the database. Returns a hashref.
 
 =cut
 
