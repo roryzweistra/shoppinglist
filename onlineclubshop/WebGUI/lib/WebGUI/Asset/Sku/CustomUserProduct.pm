@@ -1,14 +1,14 @@
 package WebGUI::Asset::Sku::UserCustomProduct;
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 # WebGUI is Copyright 2001-2009 Plain Black Corporation.
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 # Please read the legal notices (docs/legal.txt) and the license
 # (docs/license.txt) that came with this distribution before using
 # this software.
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 # http://www.plainblack.com                     info@plainblack.com
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 use strict;
 use Tie::CPHash;
@@ -22,13 +22,13 @@ use JSON;
 
 use base 'WebGUI::Asset::Sku';
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 sub _duplicateFile {
     my $self        = shift;
-    my $newAsset    = $_[0];
-    my $column      = $_[1];
+    my $newAsset    = $_[ 0 ];
+    my $column      = $_[ 1 ];
 
-    if ( $self->get($column ) ) {
+    if ( $self->get( $column ) ) {
         my $file        = WebGUI::Storage->get( $self->session, $self->get( $column ) );
         my $newstore    = $file->copy;
 
@@ -36,7 +36,7 @@ sub _duplicateFile {
     }
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 addRevision
 
@@ -55,19 +55,19 @@ sub addRevision {
             if ( $self->get($field ) ) {
                 my $newStorage = WebGUI::Storage->get( $self->session, $self->get( $field ) )->copy;
 
-                $newSelf->update({$field=>$newStorage->getId});
+                $newSelf->update( { $field => $newStorage->getId } );
             }
         }
     }
     return $newSelf;
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 sub definition {
     my $class       = shift;
     my $session     = shift;
     my $definition  = shift;
-    my $i18n        = WebGUI::International->new($session,"Asset_Product");
+    my $i18n        = WebGUI::International->new( $session, "Asset_Product" );
     my %properties;
     tie %properties, 'Tie::IxHash';
     %properties     = (
@@ -77,7 +77,7 @@ sub definition {
             defaultValue    => 3600,
             uiLevel         => 8,
             label           => $i18n->get( "cache timeout"      ),
-            hoverHelp       => $i18n->get( "cache timeout help"  )
+            hoverHelp       => $i18n->get( "cache timeout help" )
         },
         templateId          => {
             fieldType       => "template",
@@ -86,6 +86,14 @@ sub definition {
             label           => $i18n->get( 62               ),
             hoverHelp       => $i18n->get( '62 description' ),
             defaultValue    => 'PBtmpl0000000000000056'
+        },
+        addCustomTemplateId => {
+            fieldType       => 'template',
+            tab             => 'display',
+            namespace       => 'Product/AddCustom',
+            label           => 'Add custom data',
+            hoverHelp       => 'Template where users can fill in their custom data like text and images',
+            defaultValue    => '',
         },
         thankYouMessage     => {
             tab             => "properties",
@@ -211,7 +219,7 @@ sub definition {
     return $class->SUPER::definition($session, $definition);
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 deleteCollateral ( tableName, keyName, keyValue )
 
@@ -247,7 +255,7 @@ sub deleteCollateral {
     $self->setAllCollateral( $tableName );
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 duplicate
 
@@ -266,8 +274,46 @@ sub duplicate {
     return $newAsset;
 }
 
+#------------------------------------------------------------------------------------------------------------------
 
-#-------------------------------------------------------------------
+=head2 editCustomDataSave
+
+Method to save custom data.
+
+=cut
+
+sub editCustomDataSave {
+    my $self            = shift;
+    my $session         = $self->session;
+    my $item            = shift;
+
+    if ( $item ) {
+
+        my $storage         = shift;
+        my $customText      = $session->form->process( 'customText' );
+        my $customFont      = $session->form->process( 'customFont' );
+
+        # Get the variant values and check if variantId is the same as the passed in vid. If so we can create
+        # a new row matching the cartItem to the customData table.
+        my $options                     = from_json( $item->get( 'options' ) );
+        $options->{ cartItemId      }   = $item->getId;
+        $options->{ cartId          }   = $item->cart->getId;
+        $options->{ userId          }   = $session->user->userId;
+        $options->{ customDataId    }   = $session->id->generate;
+        $options->{ logoStorageId   }   = $storage->getId   if $storage;
+        $options->{ customText      }   = $customText       if $customText;
+        $options->{ fontId          }   = $customFont       if $customFont;
+        $options                        = to_json( $options );
+
+        $item->update( { options => $options } );
+    }
+
+    my $id = ( $item ) ? $item->getId : '';
+
+    return $id;
+}
+
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 getAddToCartForm ( )
 
@@ -301,7 +347,7 @@ sub getAddToCartForm {
       . WebGUI::Form::formFooter(   $session );
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 getAllCollateral ( tableName )
 
@@ -336,7 +382,7 @@ sub getAllCollateral {
 }
 
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 getCollateral ( tableName, keyName, keyValue )
 
@@ -382,7 +428,7 @@ sub getCollateral {
 }
 
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 getCollateralDataIndex ( table, keyName, keyValue )
 
@@ -419,7 +465,7 @@ sub getCollateralDataIndex {
 }
 
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 getConfiguredTitle ( )
 
@@ -435,7 +481,7 @@ sub getConfiguredTitle {
 }
 
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 getFileIconUrl ( $store )
 
@@ -454,7 +500,7 @@ sub getFileIconUrl {
     return $store->getFileIconUrl( $self->getFilename( $store ) );
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 getFilename ( $store )
 
@@ -480,7 +526,7 @@ sub getFilename {
     return "";
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 getFileUrl ( $store )
 
@@ -499,7 +545,7 @@ sub getFileUrl {
     return $store->getUrl( $self->getFilename( $store ) );
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 getMaxAllowedInCart ( )
 
@@ -515,7 +561,7 @@ sub getMaxAllowedInCart {
     return $self->getQuantityAvailable;
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 getPrice ( )
 
@@ -539,7 +585,7 @@ sub getPrice {
 }
 
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 getQuantityAvailable ( )
 
@@ -553,7 +599,7 @@ sub getQuantityAvailable {
     return $self->getOptions->{ quantity };
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 getThumbnailUrl ( [$store] )
 
@@ -588,7 +634,7 @@ sub getThumbnailUrl {
     }
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 getWeight ( )
 
@@ -603,7 +649,7 @@ sub getWeight {
     return $self->getOptions->{ weight };
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 isShippingRequired
 
@@ -618,7 +664,7 @@ sub isShippingRequired {
 }
 
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 moveCollateralDown ( tableName, keyName, keyValue )
 
@@ -657,7 +703,7 @@ sub moveCollateralDown {
 }
 
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 moveCollateralUp ( tableName, keyName, keyValue )
 
@@ -695,8 +741,30 @@ sub moveCollateralUp {
     $self->setAllCollateral( $tableName );
 }
 
+#------------------------------------------------------------------------------------------------------------------
 
-#-------------------------------------------------------------------
+=head2 onCompletePurchase ( item )
+
+Called just after payment has been made. It allows for privileges to be given, or bookkeeping
+tasks to be performed. It should be overriden by subclasses that need to do special processing after the purchase.
+
+=head3 item
+
+Receives a reference to the WebGUI::Shop::TransactionItem so it can determine things like itemId and quantity if it
+needs them for book keeping purposes.
+
+=cut
+
+sub onCompletePurchase {
+    my $self        = shift;
+    my $item        = shift;
+    my $transaction = $item->transaction;
+
+
+    return undef;
+}
+
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 onRefund ( item )
 
@@ -732,7 +800,7 @@ sub onRefund {
 }
 
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 onAdjustQuantityInCart ( item, amount )
 
@@ -767,7 +835,7 @@ sub onAdjustQuantityInCart {
 }
 
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 onRemoveFromCart ( item )
 
@@ -798,7 +866,7 @@ sub onRemoveFromCart {
 }
 
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 prepareView ( )
 
@@ -817,7 +885,7 @@ sub prepareView {
 }
 
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 purge
 
@@ -853,7 +921,7 @@ sub purge {
     $self->SUPER::purge();
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 purgeCache ( )
 
@@ -868,7 +936,7 @@ sub purgeCache {
     $self->SUPER::purgeCache;
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 purgeRevision ( )
 
@@ -976,7 +1044,7 @@ sub setCollateral {
     return $keyValue;
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_addAccessory
 
@@ -1048,7 +1116,7 @@ sub www_addAccessory {
     return $self->getAdminConsole->render( $f->print, "product accessory add/edit" );
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_addAccessorySave
 
@@ -1078,34 +1146,7 @@ sub www_addAccessorySave {
     return $self->www_addAccessory();
 }
 
-#-------------------------------------------------------------------
-
-=head2 www_addCustom
-
-Method to add custom user data to the variant. The variant is in the form
-variable vid.
-
-=cut
-
-sub www_addCustom {
-    my $self = shift;
-
-    return $self->session->privilege->insufficient() unless $self->canView;
-
-    ##Need to validate the index
-    my $vid     = $self->session->form->process( 'vid' );
-    my $variant = $self->getCollateral( 'variantsJSON', 'variantId', $vid );
-
-    return '' unless keys %{ $variant };
-
-    $self->addToCart( $variant );
-
-    $self->{ _hasAddedToCart } = 1;
-
-    return $self->www_view;
-}
-
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_addRelated
 
@@ -1182,7 +1223,7 @@ sub www_addRelated {
     return $self->getAdminConsole->render( $f->print, 'product related add/edit' );
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_addRelatedSave
 
@@ -1212,7 +1253,7 @@ sub www_addRelatedSave {
     return $self->www_addRelated();
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_buy
 
@@ -1232,16 +1273,19 @@ sub www_buy {
 
     return '' unless keys %{ $variant };
 
-    $self->addToCart( $variant );
+    my $cartItem = $self->addToCart( $variant );
 
     $self->{ _hasAddedToCart    } = 1;
-    $self->{ _needCustomData    } = 1;
-    $self->{ _customDataVid     } = $vid;
 
-    return $self->www_addCustom;
+    # Create variabeles so adding custom data knows what variant we're adding the data to.
+    $self->{ _customItem        } = $cartItem;
+    $self->{ _variantId         } = $vid;
+    $self->{ _customDataId      } = $self->editCustomDataSave( $cartItem );
+
+    return $self->www_editCustomData;
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_deleteAccessoryConfirm
 
@@ -1258,7 +1302,7 @@ sub www_deleteAccessoryConfirm {
     return '';
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_deleteBenefitConfirm
 
@@ -1276,7 +1320,7 @@ sub www_deleteBenefitConfirm {
     return "";
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_deleteFeatureConfirm
 
@@ -1294,7 +1338,7 @@ sub www_deleteFeatureConfirm {
     return '';
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_deleteFileConfirm
 
@@ -1307,8 +1351,8 @@ sub www_deleteFileConfirm {
 
     return $self->session->privilege->insufficient() unless ($self->canEdit);
 
-    my $column = $self->session->form->process("file");
-    return $self->www_edit  unless (isIn($column, qw(image1 image2 image3 manual warranty brochure)));
+    my $column = $self->session->form->process( "file" );
+    return $self->www_edit  unless ( isIn( $column, qw( image1 image2 image3 manual warranty brochure ) ) );
 
     my $store   = $self->get( $column );
     my $file    = WebGUI::Storage->get( $self->session, $store );
@@ -1319,7 +1363,7 @@ sub www_deleteFileConfirm {
     return $self->www_edit;
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_deleteRelatedConfirm
 
@@ -1337,7 +1381,7 @@ sub www_deleteRelatedConfirm {
     return '';
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_deleteVariantConfirm
 
@@ -1355,7 +1399,7 @@ sub www_deleteVariantConfirm {
     return '';
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_deleteSpecificationConfirm
 
@@ -1374,7 +1418,7 @@ sub www_deleteSpecificationConfirm {
 }
 
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_editBenefit
 
@@ -1415,7 +1459,7 @@ sub www_editBenefit {
     return $self->getAdminConsole->render( $f->print, 'product benefit add/edit' );
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_editBenefitSave
 
@@ -1443,7 +1487,121 @@ sub www_editBenefitSave {
     return $self->www_editBenefit( 'new' );
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
+
+=head2 www_editCustomData
+
+Method to add custom user data to the variant. The variant id is in the form variable vid.
+
+=cut
+
+sub www_editCustomData {
+    my $self    = shift;
+    my $session = $self->session;
+
+    return $self->session->privilege->insufficient() unless $self->canView;
+
+    my $var;
+    # Form for adding textual data
+    $var->{ formHeader      } = WebGUI::formHeader(         $session, {
+        action      => $self->getUrl,
+    });
+    $var->{ hidden          } = WebGUI::Form::Hidden(       $session, {
+        name        => 'cid',
+        value       => $self->{ _customDataId },
+    });
+    $var->{ hidden          } .= WebGUI::Form::Hidden(      $session, {
+        name        => 'func',
+        value       => 'editCustomDataSave',
+    });
+    $var->{ hidden          } .= WebGUI::Form::Hidden(      $session, {
+        name        => 'vid',
+        value       => $self->{ _variantId },
+    });
+    $var->{ customText      } = WebGUI::Form::Text(         $session, {
+        name        => 'customText',
+    });
+    $var->{ customFont      } = WebGUI::From::SelectBox(    $session, {
+        name        => 'customFont',
+    });
+    $var->{ submit          } = WebGUI::Form::Submit(       $session, {
+        name        => 'submit',
+        value       => 'submit',
+    });
+    $var->{ formFooter      } = WebGUI::formFooter(         $session );
+
+    # Form for adding an image
+    $var->{ fileFormHeader    } = WebGUI::formHeader(       $session, {
+        action      => $self->getUrl,
+    });
+    $var->{ fileHidden        } = WebGUI::Form::Hidden(     $session, {
+        name        => 'cid',
+        value       => $self->{ _customDataId },
+    });
+    $var->{ fileHidden        } .= WebGUI::Form::Hidden(    $session, {
+        name        => 'func',
+        value       => 'editCustomLogoSave',
+    });
+    $var->{ fileHidden        } .= WebGUI::Form::Hidden(    $session, {
+        name        => 'vid',
+        value       => $self->{ _variantId },
+    });
+    $var->{ customImage   } = WebGUI::Form::Image(          $session, {
+        name        => 'customImage',
+        forceImage  => 1,
+    });
+    $var->{ fileSubmit        } = WebGUI::Form::Submit(     $session, {
+        name        => 'submit',
+        value       => 'submit',
+    });
+    $var->{ fileFormFooter    } = WebGUI::formFooter(       $session );
+
+
+    my $template = WebGUI::Asset::Template->new( $session, $self->get( 'templateId' ) );
+
+    return $template->process( $var );
+}
+
+#------------------------------------------------------------------------------------------------------------------
+
+=head2 www_editCustomDataSave
+
+Process the editCustomData form.
+
+=cut
+
+sub www_editCustomDataSave {
+    my $self = shift;
+
+    return $self->session->privilege->insufficient() unless ( $self->canEdit );
+
+    my $customDataId = $self->editCustomDataSave( $self->{ _customItem } );
+
+    return to_json( $customDataId );
+}
+
+#------------------------------------------------------------------------------------------------------------------
+
+=head2 www_editCustomImageSave
+
+Process the editCustomImage form.
+
+=cut
+
+sub www_editCustomImageSave {
+    my $self    	= shift;
+    my $session 	= $self->session;
+
+	return $session->privilege->insufficient unless ( $self->canEdit );
+
+	my $storage     = WebGUI::Storage->create( $session );
+	my $file        = $storage->addFileFromFormPost( "customImage_file", 1 );
+    my $id          = $self->editCustomDataSave( $self->{ _customItem }, $storage );
+
+    return to_json( $id );
+}
+
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_editFeature
 
@@ -1458,8 +1616,8 @@ sub www_editFeature {
     return $self->session->privilege->insufficient() unless ( $self->canEdit );
 
     my $data    = $self->getCollateral( 'featureJSON', 'featureId', $fid        );
-    my $i18n    = WebGUI::International->new( $self->session,'Asset_Product'    );
-    my $f       = WebGUI::HTMLForm->new( $self->session,-action=>$self->getUrl  );
+    my $i18n    = WebGUI::International->new( $self->session, 'Asset_Product'    );
+    my $f       = WebGUI::HTMLForm->new( $self->session, -action=>$self->getUrl  );
     $f->hidden(
         -name       => 'fid',
         -value      => $fid,
@@ -1470,21 +1628,21 @@ sub www_editFeature {
     );
     $f->text(
         -name      => 'feature',
-        -label     => $i18n->get(23),
-        -hoverHelp => $i18n->get('23 description'),
-        -value     => $data->{feature},
+        -label     => $i18n->get( 23                ),
+        -hoverHelp => $i18n->get( '23 description'  ),
+        -value     => $data->{ feature },
     );
     $f->yesNo(
         -name      => 'proceed',
-        -label     => $i18n->get(24),
-        -hoverHelp => $i18n->get('24 description'),
+        -label     => $i18n->get( 24                ),
+        -hoverHelp => $i18n->get( '24 description'  ),
     );
     $f->submit;
 
     return $self->getAdminConsole->render( $f->print, 'product feature add/edit' );
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_editFeatureSave
 
@@ -1512,7 +1670,7 @@ sub www_editFeatureSave {
     return $self->www_editFeature( 'new' );
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_editSpecification
 
@@ -1566,7 +1724,7 @@ sub www_editSpecification {
     return $self->getAdminConsole->render( $f->print, 'product specification add/edit' );
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_editSpecificationSave
 
@@ -1596,7 +1754,7 @@ sub www_editSpecificationSave {
     return $self->www_editSpecification( 'new' );
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_editVariant
 
@@ -1662,7 +1820,7 @@ sub www_editVariant {
     return $self->getAdminConsole->render( $f->print, 'add variant' );
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_editVariantSave
 
@@ -1695,7 +1853,7 @@ sub www_editVariantSave {
     return $self->www_editVariant( 'new' );
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_moveAccessoryDown
 
@@ -1713,7 +1871,7 @@ sub www_moveAccessoryDown {
     return '';
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_moveAccessoryUp
 
@@ -1731,7 +1889,7 @@ sub www_moveAccessoryUp {
     return '';
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_moveBenefitDown
 
@@ -1749,7 +1907,7 @@ sub www_moveBenefitDown {
     return "";
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_moveBenefitUp
 
@@ -1767,7 +1925,7 @@ sub www_moveBenefitUp {
     return "";
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_moveFeatureDown
 
@@ -1785,7 +1943,7 @@ sub www_moveFeatureDown {
     return '';
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_moveFeatureUp
 
@@ -1803,7 +1961,7 @@ sub www_moveFeatureUp {
     return '';
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_moveRelatedDown
 
@@ -1821,7 +1979,7 @@ sub www_moveRelatedDown {
     return '';
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_moveRelatedUp
 
@@ -1839,7 +1997,7 @@ sub www_moveRelatedUp {
     return '';
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_moveSpecificationDown
 
@@ -1857,7 +2015,7 @@ sub www_moveSpecificationDown {
     return '';
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_moveSpecificationUp
 
@@ -1875,7 +2033,7 @@ sub www_moveSpecificationUp {
     return '';
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_moveVariantDown
 
@@ -1893,7 +2051,7 @@ sub www_moveVariantDown {
     return '';
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_moveVariantUp
 
@@ -1911,7 +2069,7 @@ sub www_moveVariantUp {
     return '';
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 view
 
@@ -2179,7 +2337,7 @@ sub view {
     return $out;
 }
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 www_view ( )
 
