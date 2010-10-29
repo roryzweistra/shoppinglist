@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project id="5468772c-c5db-da41-ac1a-db32dca73f65" kpf_version="4" name="shoppinglist.kpf">
+<preference-set idref="5468772c-c5db-da41-ac1a-db32dca73f65">
+  <boolean id="import_live">1</boolean>
+</preference-set>
+</project>
