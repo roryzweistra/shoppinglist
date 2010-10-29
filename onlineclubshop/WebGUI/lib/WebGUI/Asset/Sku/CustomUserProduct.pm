@@ -1,4 +1,4 @@
-package WebGUI::Asset::Sku::UserCustomProduct;
+package WebGUI::Asset::Sku::CustomUserProduct;
 
 #------------------------------------------------------------------------------------------------------------------
 # WebGUI is Copyright 2001-2009 Plain Black Corporation.
@@ -19,6 +19,7 @@ use WebGUI::Storage;
 use WebGUI::SQL;
 use WebGUI::Utility;
 use JSON;
+use Data::Dumper;
 
 use base 'WebGUI::Asset::Sku';
 
@@ -67,7 +68,7 @@ sub definition {
     my $class       = shift;
     my $session     = shift;
     my $definition  = shift;
-    my $i18n        = WebGUI::International->new( $session, "Asset_Product" );
+    my $i18n        = WebGUI::International->new( $session, "Asset_CustomUserProduct" );
     my %properties;
     tie %properties, 'Tie::IxHash';
     %properties     = (
@@ -211,12 +212,12 @@ sub definition {
         assetName           => $i18n->get( 'assetName' ),
         autoGenerateForms   => 1,
         icon                => 'product.gif',
-        tableName           => 'Product',
-        className           => 'WebGUI::Asset::Sku::Product',
+        tableName           => 'CustomUserProduct',
+        className           => 'WebGUI::Asset::Sku::CustomUserProduct',
         properties          => \%properties
     });
 
-    return $class->SUPER::definition($session, $definition);
+    return $class->SUPER::definition( $session, $definition );
 }
 
 #------------------------------------------------------------------------------------------------------------------
@@ -285,17 +286,19 @@ Method to save custom data.
 sub editCustomDataSave {
     my $self            = shift;
     my $session         = $self->session;
-    my $item            = shift;
+    my $cart            = WebGUI::Shop::Cart->newBySession( $session );
+    my $itemId          = shift;
+    my $item            = $cart->getItem( $itemId );
 
     if ( $item ) {
-
         my $storage         = shift;
         my $customText      = $session->form->process( 'customText' );
         my $customFont      = $session->form->process( 'customFont' );
 
         # Get the variant values and check if variantId is the same as the passed in vid. If so we can create
         # a new row matching the cartItem to the customData table.
-        my $options                     = from_json( $item->get( 'options' ) );
+        my $options                     = $item->get( 'options' );
+$self->session->log->error( "voor options [".Dumper($options)."]" );
         $options->{ cartItemId      }   = $item->getId;
         $options->{ cartId          }   = $item->cart->getId;
         $options->{ userId          }   = $session->user->userId;
@@ -303,7 +306,8 @@ sub editCustomDataSave {
         $options->{ logoStorageId   }   = $storage->getId   if $storage;
         $options->{ customText      }   = $customText       if $customText;
         $options->{ fontId          }   = $customFont       if $customFont;
-        $options                        = to_json( $options );
+        #$options                        = to_json( $options );
+$self->session->log->error( "options [".Dumper($options)."]" );
 
         $item->update( { options => $options } );
     }
@@ -325,7 +329,7 @@ a shelf.  Overrode master class to add variant dropdown.
 sub getAddToCartForm {
     my $self        = shift;
     my $session     = $self->session;
-    my $i18n        = WebGUI::International->new( $session, 'Asset_Product' );
+    my $i18n        = WebGUI::International->new( $session, 'Asset_CustomUserProduct' );
     my %variants    = ();
     tie %variants, 'Tie::IxHash';
 
@@ -475,9 +479,28 @@ Product.
 =cut
 
 sub getConfiguredTitle {
-    my $self = shift;
+    my $self    = shift;
+    $self->session->log->error("in config title [".$self->session->form->process( 'shop' )."]" );
+    my $inCart  = ( $self->session->form->process( 'shop' ) eq 'cart' ) ? 1 : undef;
 
-    return join ' - ', $self->getTitle, $self->getOptions->{ shortdesc };
+    return join ' - ', $self->getTitle, $self->getOptions->{ shortdesc } unless $inCart;
+
+    my $i18n            = WebGUI::International->new( $self->session, "Asset_CustomUserProduct" );
+    my $f;
+    $f->formHeader(
+        -name   => 'editCustomProduct',
+        -action => $self->getUrl,
+    );
+    $f->hidden(
+        -name   => 'cid',
+        -value  => $self->getId,
+    );
+    $f->submit(
+        -name   => 'editCustomProductSubmit'
+        -value  => $i18n->get( 'edit product button' ),
+    );
+    $f->formFooter;
+    return $self->getTitle ." - ". $self->getOptions->{ shortdesc } . "  " . $f->print;
 }
 
 
@@ -759,7 +782,6 @@ sub onCompletePurchase {
     my $self        = shift;
     my $item        = shift;
     my $transaction = $item->transaction;
-
 
     return undef;
 }
@@ -1099,7 +1121,7 @@ sub www_addAccessory {
             assetData.assetId"
     );
 
-    my $i18n            = WebGUI::International->new( $self->session, "Asset_Product" );
+    my $i18n            = WebGUI::International->new( $self->session, "Asset_CustomUserProduct" );
     $f->selectBox(
         -name       => "accessoryAccessId",
         -options    => $accessory,
@@ -1206,7 +1228,7 @@ sub www_addRelated {
             assetData.assetId"
     );
 
-    my $i18n = WebGUI::International->new( $self->session, 'Asset_Product' );
+    my $i18n = WebGUI::International->new( $self->session, 'Asset_CustomUserProduct' );
     $f->selectBox(
         -name       => 'relatedAssetId',
         -options    => $related,
@@ -1278,11 +1300,10 @@ sub www_buy {
     $self->{ _hasAddedToCart    } = 1;
 
     # Create variabeles so adding custom data knows what variant we're adding the data to.
-    $self->{ _customItem        } = $cartItem;
     $self->{ _variantId         } = $vid;
-    $self->{ _customDataId      } = $self->editCustomDataSave( $cartItem );
+    $self->editCustomDataSave( $cartItem->getId );
 
-    return $self->www_editCustomData;
+    return $self->editCustomData( $cartItem->getId );
 }
 
 #------------------------------------------------------------------------------------------------------------------
@@ -1433,7 +1454,7 @@ sub www_editBenefit {
     return $self->session->privilege->insufficient() unless ( $self->canEdit );
 
     my $data    = $self->getCollateral( 'benefitJSON', 'benefitId', $bid            );
-    my $i18n    = WebGUI::International->new( $self->session, 'Asset_Product'       );
+    my $i18n    = WebGUI::International->new( $self->session, 'Asset_CustomUserProduct'       );
     my $f       = WebGUI::HTMLForm->new( $self->session, -action => $self->getUrl   );
     $f->hidden(
         -name       => 'bid',
@@ -1489,26 +1510,25 @@ sub www_editBenefitSave {
 
 #------------------------------------------------------------------------------------------------------------------
 
-=head2 www_editCustomData
+=head2 editCustomData
 
 Method to add custom user data to the variant. The variant id is in the form variable vid.
 
 =cut
 
-sub www_editCustomData {
+sub editCustomData {
     my $self    = shift;
     my $session = $self->session;
-
-    return $self->session->privilege->insufficient() unless $self->canView;
+    my $itemId  = shift;
 
     my $var;
     # Form for adding textual data
-    $var->{ formHeader      } = WebGUI::formHeader(         $session, {
+    $var->{ formHeader      } = WebGUI::Form::formHeader(   $session, {
         action      => $self->getUrl,
     });
     $var->{ hidden          } = WebGUI::Form::Hidden(       $session, {
         name        => 'cid',
-        value       => $self->{ _customDataId },
+        value       => $itemId,
     });
     $var->{ hidden          } .= WebGUI::Form::Hidden(      $session, {
         name        => 'func',
@@ -1521,26 +1541,26 @@ sub www_editCustomData {
     $var->{ customText      } = WebGUI::Form::Text(         $session, {
         name        => 'customText',
     });
-    $var->{ customFont      } = WebGUI::From::SelectBox(    $session, {
+    $var->{ customFont      } = WebGUI::Form::SelectBox(    $session, {
         name        => 'customFont',
     });
     $var->{ submit          } = WebGUI::Form::Submit(       $session, {
         name        => 'submit',
         value       => 'submit',
     });
-    $var->{ formFooter      } = WebGUI::formFooter(         $session );
+    $var->{ formFooter      } = WebGUI::Form::formFooter(   $session );
 
     # Form for adding an image
-    $var->{ fileFormHeader    } = WebGUI::formHeader(       $session, {
+    $var->{ fileFormHeader    } = WebGUI::Form::formHeader( $session, {
         action      => $self->getUrl,
     });
     $var->{ fileHidden        } = WebGUI::Form::Hidden(     $session, {
         name        => 'cid',
-        value       => $self->{ _customDataId },
+        value       => $itemId,
     });
     $var->{ fileHidden        } .= WebGUI::Form::Hidden(    $session, {
         name        => 'func',
-        value       => 'editCustomLogoSave',
+        value       => 'editCustomImageSave',
     });
     $var->{ fileHidden        } .= WebGUI::Form::Hidden(    $session, {
         name        => 'vid',
@@ -1554,12 +1574,9 @@ sub www_editCustomData {
         name        => 'submit',
         value       => 'submit',
     });
-    $var->{ fileFormFooter    } = WebGUI::formFooter(       $session );
+    $var->{ fileFormFooter    } = WebGUI::Form::formFooter( $session );
 
-
-    my $template = WebGUI::Asset::Template->new( $session, $self->get( 'templateId' ) );
-
-    return $template->process( $var );
+    return $self->processStyle( $self->processTemplate( $var, $self->get( 'addCustomTemplateId' ) ) );
 }
 
 #------------------------------------------------------------------------------------------------------------------
@@ -1575,9 +1592,9 @@ sub www_editCustomDataSave {
 
     return $self->session->privilege->insufficient() unless ( $self->canEdit );
 
-    my $customDataId = $self->editCustomDataSave( $self->{ _customItem } );
+    my $id = $self->editCustomDataSave( $self->session->form->process( 'cid' ) );
 
-    return to_json( $customDataId );
+    return to_json( $id );
 }
 
 #------------------------------------------------------------------------------------------------------------------
@@ -1591,12 +1608,9 @@ Process the editCustomImage form.
 sub www_editCustomImageSave {
     my $self    	= shift;
     my $session 	= $self->session;
-
-	return $session->privilege->insufficient unless ( $self->canEdit );
-
 	my $storage     = WebGUI::Storage->create( $session );
 	my $file        = $storage->addFileFromFormPost( "customImage_file", 1 );
-    my $id          = $self->editCustomDataSave( $self->{ _customItem }, $storage );
+    my $id          = $self->editCustomDataSave( $session->form->process( 'cid' ), $storage );
 
     return to_json( $id );
 }
@@ -1616,7 +1630,7 @@ sub www_editFeature {
     return $self->session->privilege->insufficient() unless ( $self->canEdit );
 
     my $data    = $self->getCollateral( 'featureJSON', 'featureId', $fid        );
-    my $i18n    = WebGUI::International->new( $self->session, 'Asset_Product'    );
+    my $i18n    = WebGUI::International->new( $self->session, 'Asset_CustomUserProduct'    );
     my $f       = WebGUI::HTMLForm->new( $self->session, -action=>$self->getUrl  );
     $f->hidden(
         -name       => 'fid',
@@ -1684,7 +1698,7 @@ sub www_editSpecification {
 
     return $self->session->privilege->insufficient() unless ( $self->canEdit );
 
-    my $i18n    = WebGUI::International->new( $self->session, 'Asset_Product' );
+    my $i18n    = WebGUI::International->new( $self->session, 'Asset_CustomUserProduct' );
     my $data    = $self->getCollateral( 'specificationJSON', 'specificationId', $sid );
     my $f       = WebGUI::HTMLForm->new( $self->session, -action => $self->getUrl );
 
@@ -1768,7 +1782,7 @@ sub www_editVariant {
 
     return $self->session->privilege->insufficient() unless ( $self->canEdit );
 
-    my $i18n    = WebGUI::International->new( $self->session, 'Asset_Product' );
+    my $i18n    = WebGUI::International->new( $self->session, 'Asset_CustomUserProduct' );
     my $data    = $self->getCollateral( "variantsJSON", 'variantId', $vid );
     my $f       = WebGUI::HTMLForm->new( $self->session, -action => $self->getUrl );
     $f->hidden(
@@ -2100,7 +2114,7 @@ sub view {
     my $image3      = $self->get( "image3"      );
 
     #---brochure
-    my $i18n = WebGUI::International->new( $session, 'Asset_Product' );
+    my $i18n = WebGUI::International->new( $session, 'Asset_CustomUserProduct' );
 
     if ( $brochure ) {
         my $file = WebGUI::Storage->get( $session, $brochure );
