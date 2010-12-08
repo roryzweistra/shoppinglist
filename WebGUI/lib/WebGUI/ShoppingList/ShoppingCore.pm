@@ -2,16 +2,66 @@ package WebGUI::ShoppingList::ShoppingCore;
 
 $VERSION = "1.0.0";
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
 # Rory Zweistra 2010
-#-------------------------------------------------------------------
-# http://www.ryuu.nl                                    rory@ryuu.nl
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
+# http://www.ryuu.nl  e: rory@ryuu.nl
+#------------------------------------------------------------------------------------------------------------------
 
 use strict;
 use Data::Dumper;
 
-#-------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
+
+=head2 createSelectBox ( )
+
+Returns a WebGUI::Form::SelectBox containing the data provided. Takes a hashref containing all the options as a
+parameter
+
+=cut
+
+sub createSelectBox {
+    my $self	= shift;
+    my $options	= shift || undef;
+	my $name	= shift || undef;
+	my $id		= shift || $name || undef;
+	my $extras	= shift || undef;
+
+	my $selectbox	= WebGUI::Form::SelectBox( $self->session, {
+		name	=> $name,
+		id		=> $id,
+		options	=> $options,
+		extras	=> $extras,
+	});
+
+    return $selectbox;
+}
+
+#------------------------------------------------------------------------------------------------------------------
+
+sub getDb {
+	my $self	= shift;
+	my $session	= shift;
+	my $dbName	= 'shoppingList';
+
+	my $databaseLinkId	= $session->db->quickScalar( "SELECT
+			databaseLinkId
+		FROM
+			databaseLink
+		WHERE
+			title = ?
+		LIMIT 1",
+		[
+			$dbName
+		]
+	);
+
+	my $dbLink			= WebGUI::DatabaseLink->new( $session, $databaseLinkId );
+
+	return $dbLink;
+}
+
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 getDefaultData ( )
 
@@ -32,6 +82,24 @@ sub getDefaultSaveData {
 }
 
 #-------------------------------------------------------------------
+sub new {
+	my $class        = shift;
+	my $session      = shift;
+	my $properties   = {
+		_session    => $session,
+	};
+
+	bless $properties, $class;
+}
+
+#-------------------------------------------------------------------
+sub session {
+	my $self = shift;
+
+	return $self->{ _session };
+}
+
+#------------------------------------------------------------------------------------------------------------------
 
 =head2 skipStandardFormVars ( )
 
@@ -48,18 +116,6 @@ sub skipStandardFormVars {
 	$data = delete $data->{ @varsToSkip };
 
     return $data;
-}
-
-#-------------------------------------------------------------------
-
-sub updateDb {
-	my $self		= shift;
-	my $table		= shift || undef;
-	my $primaryKey	= shift || undef;
-	my $data		= shift || undef;
-	my $update		= $self->session->db->setRow( $table, $primaryKey, $data );
-
-	return $update;
 }
 
 1;
