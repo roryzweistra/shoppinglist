@@ -21,11 +21,12 @@ sub process {
         returnObjects       	=> 1,
         statesToInclude     	=> [ 'published'    ],
         statusToInclude    		=> [ 'approved'     ],
-        invertTree				=> 1,
     });
 
     foreach my $image ( @$images ) {
         my $vars = $image->getTemplateVars;
+        $vars->{ groupNumber } = $parentId;
+        $vars->{ parentTitle } = $parent->get( 'title' );
         push @varLoop, $vars;
     }
 
